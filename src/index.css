@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  color-scheme: light;
+  --bg: #f7f4ee;
+  --ink: #0e2a47;
+  --text: #31465a;
+  --muted: #6b7b89;
+  --paper: #ffffff;
+  --teal: #5ba9c8;
+  --accent: #d98a2b;
+  --heading-font: 'Cormorant Garamond', serif;
+  --body-font: 'Manrope', sans-serif;
+  font-family: var(--body-font);
+  line-height: 1.55;
+  font-weight: 500;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(91, 169, 200, 0.14), transparent 28%),
+    linear-gradient(180deg, #fbfaf7 0%, #f7f4ee 60%, #f2efe9 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: 6rem;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--heading-font);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+
+p {
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
