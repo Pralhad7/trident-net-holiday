@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import './App.css'
 
 const contact = {
@@ -693,6 +693,43 @@ function App() {
     return () => clearInterval(interval)
   }, [])
 
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [showBackToTop, setShowBackToTop] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = document.documentElement.scrollTop
+      const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight
+      setScrollProgress(scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0)
+      setShowBackToTop(scrollTop > 500)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const observerRef = useRef(null)
+  const sectionRef = useCallback((node) => {
+    if (observerRef.current) observerRef.current.disconnect()
+    if (!node) return
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed')
+            observerRef.current.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    )
+    node.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-stagger')
+      .forEach((el) => observerRef.current.observe(el))
+  }, [])
+
   const handleDestinationSelect = (id) => {
     const dest = destinationDetails[id] || destinationDetails.thailand
     setSelectedDestination(dest)
@@ -721,7 +758,10 @@ function App() {
   }
 
   return (
-    <div className="page-shell">
+    <div className="page-shell" ref={sectionRef}>
+      <div className="scroll-progress">
+        <div className="scroll-progress-bar" style={{ width: `${scrollProgress}%` }}></div>
+      </div>
       <header className="topbar">
         <div className="section-shell topbar-inner">
           <a className="brand" href="#home" aria-label="Trident Net Holidays home" onClick={(e) => { e.preventDefault(); setSelectedDestination(null); }}>
@@ -760,6 +800,16 @@ function App() {
 
       <main className="site-main">
         <section className="hero-band" id="home">
+          <div className="hero-particles">
+            <i className="fa-solid fa-globe hero-particle"></i>
+            <i className="fa-solid fa-plane hero-particle"></i>
+            <i className="fa-solid fa-compass hero-particle"></i>
+            <i className="fa-solid fa-map-pin hero-particle"></i>
+            <i className="fa-solid fa-sun hero-particle"></i>
+            <i className="fa-solid fa-mountain hero-particle"></i>
+            <i className="fa-solid fa-umbrella-beach hero-particle"></i>
+            <i className="fa-solid fa-location-dot hero-particle"></i>
+          </div>
           <div className="hero-slideshow">
             {heroImages.map((slide, index) => (
               <div 
@@ -814,8 +864,8 @@ function App() {
                 </div>
               </div>
 
-              <div className="hero-panel">
-                <article className="hero-featured-card">
+              <div className="hero-panel reveal" style={{ animationDelay: '0s' }}>
+                <article className="hero-featured-card shimmer">
                   <div 
                     className="hero-featured-image"
                     style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1528164344705-47542687000d?auto=format&fit=crop&w=1400&q=80)' }}
@@ -838,7 +888,7 @@ function App() {
                       <span><i className="fa-solid fa-check"></i> Hotels</span>
                       <span><i className="fa-solid fa-check"></i> Sightseeing</span>
                     </div>
-                    <a className="cta-button" href="#" onClick={(e) => handleDestinationSelect('thailand')}>
+                    <a className="cta-button" href="#" onClick={() => handleDestinationSelect('thailand')}>
                       Book Now <i className="fa-solid fa-arrow-right"></i>
                     </a>
                   </div>
@@ -859,15 +909,22 @@ function App() {
           </div>
         </section>
 
+        <div className="section-divider">
+          <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+            <path fill="#f7f4ee" d="M0,50 C240,100 480,0 720,50 C960,100 1200,0 1440,50 L1440,100 L0,100 Z" opacity="0.4"/>
+            <path fill="rgba(91,169,200,0.08)" d="M0,40 C240,90 480,-10 720,40 C960,90 1200,-10 1440,40 L1440,100 L0,100 Z"/>
+          </svg>
+        </div>
+
         <section className="section-band international-band" id="international">
           <div className="section-shell">
-            <div className="section-heading">
+            <div className="section-heading reveal">
               <p className="section-tag"><i className="fa-solid fa-plane-departure"></i> International Tours</p>
               <h2>Explore the World with Our Premium International Packages</h2>
               <p>Handpicked international destinations with flights, hotels, sightseeing and expert guidance.</p>
             </div>
 
-            <div className="package-grid">
+            <div className="package-grid reveal-stagger">
               {internationalPackages.map((item) => (
                 <article className="package-card" key={item.title} onClick={(e) => handlePackageClick(item, e)}>
                   <div
@@ -911,15 +968,22 @@ function App() {
           </div>
         </section>
 
+        <div className="section-divider">
+          <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+            <path fill="#f7f4ee" d="M0,60 C360,0 720,100 1080,60 L1080,100 L0,100 Z" opacity="0.4"/>
+            <path fill="rgba(217,138,43,0.06)" d="M0,50 C360,-10 720,90 1080,50 L1080,100 L0,100 Z"/>
+          </svg>
+        </div>
+
         <section className="section-band domestic-band" id="domestic">
           <div className="section-shell">
-            <div className="section-heading">
+            <div className="section-heading reveal">
               <p className="section-tag"><i className="fa-solid fa-map-location-dot"></i> Domestic Tours</p>
               <h2>Discover Incredible India with Our Domestic Packages</h2>
               <p>From the majestic Himalayas to serene backwaters, explore India's beauty with us.</p>
             </div>
 
-            <div className="package-grid">
+            <div className="package-grid reveal-stagger">
               {domesticPackages.map((item) => (
                 <article className="package-card" key={item.title} onClick={(e) => handlePackageClick(item, e)}>
                   <div
@@ -963,14 +1027,21 @@ function App() {
           </div>
         </section>
 
+        <div className="section-divider">
+          <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+            <path fill="#f7f4ee" d="M0,40 C480,120 960,-20 1440,40 L1440,100 L0,100 Z" opacity="0.4"/>
+            <path fill="rgba(91,169,200,0.06)" d="M0,30 C480,110 960,-30 1440,30 L1440,100 L0,100 Z"/>
+          </svg>
+        </div>
+
         <section className="section-band services-band" id="services">
           <div className="section-shell">
-            <div className="section-heading">
+            <div className="section-heading reveal">
               <p className="section-tag"><i className="fa-solid fa-concierge-bell"></i> Our Services</p>
               <h2>Complete Travel Solutions for Every Need</h2>
             </div>
 
-            <div className="services-grid">
+            <div className="services-grid reveal-stagger">
               {services.map((service, index) => (
                 <article className="service-card" key={service.name}>
                   <div className="service-icon-3d" style={{ '--icon-color': service.color }}>
@@ -985,16 +1056,23 @@ function App() {
           </div>
         </section>
 
+        <div className="section-divider">
+          <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+            <path fill="#f7f4ee" d="M720,60 C540,20 360,80 180,40 L0,60 L0,100 L1440,100 L1440,60 C1260,80 1080,20 900,60 Z" opacity="0.4"/>
+            <path fill="rgba(217,138,43,0.05)" d="M720,50 C540,10 360,70 180,30 L0,50 L0,100 L1440,100 L1440,50 C1260,70 1080,10 900,50 Z"/>
+          </svg>
+        </div>
+
         <section className="section-band mice-band" id="mice">
           <div className="section-shell">
-            <div className="section-heading">
+            <div className="section-heading reveal">
               <p className="section-tag"><i className="fa-solid fa-briefcase"></i> MICE Tours</p>
               <h2>Corporate Events & MICE Solutions</h2>
               <p>Professional MICE (Meetings, Incentives, Conferences & Exhibitions) services tailored for your business needs.</p>
             </div>
 
-            <div className="mice-grid">
-              {miceServices.map((service, index) => (
+            <div className="mice-grid reveal-stagger">
+              {miceServices.map((service) => (
                 <article className="mice-card" key={service.name}>
                   <div className="mice-icon" style={{ '--icon-color': service.color }}>
                     <i className={`fa-solid ${service.icon}`}></i>
@@ -1005,7 +1083,7 @@ function App() {
               ))}
             </div>
 
-            <div className="mice-cta">
+            <div className="mice-cta reveal">
               <div className="mice-cta-content">
                 <h3>Ready to Plan Your Corporate Event?</h3>
                 <p>Let our MICE experts create a memorable experience for your team</p>
@@ -1017,14 +1095,21 @@ function App() {
           </div>
         </section>
 
+        <div className="section-divider">
+          <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+            <path fill="#f7f4ee" d="M0,30 C240,80 480,10 720,40 C960,70 1200,20 1440,50 L1440,100 L0,100 Z" opacity="0.4"/>
+            <path fill="rgba(91,169,200,0.05)" d="M0,20 C240,70 480,0 720,30 C960,60 1200,10 1440,40 L1440,100 L0,100 Z"/>
+          </svg>
+        </div>
+
         <section className="section-band testimonials-band">
           <div className="section-shell">
-            <div className="section-heading">
+            <div className="section-heading reveal">
               <p className="section-tag"><i className="fa-solid fa-comments"></i> Testimonials</p>
               <h2>What Our Travellers Say</h2>
             </div>
 
-            <div className="testimonials-grid">
+            <div className="testimonials-grid reveal-stagger">
               {testimonials.map((review) => (
                 <article className="testimonial-card" key={review.author}>
                   <div className="testimonial-header">
@@ -1047,15 +1132,22 @@ function App() {
           </div>
         </section>
 
+        <div className="section-divider">
+          <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+            <path fill="#f7f4ee" d="M1440,60 C1200,10 960,90 720,50 C480,10 240,80 0,40 L0,100 L1440,100 Z" opacity="0.4"/>
+            <path fill="rgba(217,138,43,0.05)" d="M1440,50 C1200,0 960,80 720,40 C480,0 240,70 0,30 L0,100 L1440,100 Z"/>
+          </svg>
+        </div>
+
         <section className="section-band careers-band" id="careers">
           <div className="section-shell">
-            <div className="section-heading">
+            <div className="section-heading reveal">
               <p className="section-tag"><i className="fa-solid fa-briefcase"></i> Join Our Team</p>
               <h2>Build Your Career with Trident Net Holidays</h2>
               <p>We're always looking for passionate individuals who love travel and want to help others create unforgettable memories.</p>
             </div>
 
-            <div className="careers-grid">
+            <div className="careers-grid reveal-stagger">
               {careerOpenings.map((opening, index) => (
                 <article className="career-card" key={opening.title} style={{ animationDelay: `${index * 0.1}s` }}>
                   <div className="career-icon">
@@ -1085,7 +1177,7 @@ function App() {
               ))}
             </div>
 
-            <div className="careers-cta">
+            <div className="careers-cta reveal">
               <div className="careers-cta-content">
                 <h3>Don't See a Position That Fits?</h3>
                 <p>We're always open to talented individuals. Send us your resume and let's explore opportunities together!</p>
@@ -1096,6 +1188,13 @@ function App() {
             </div>
           </div>
         </section>
+
+        <div className="section-divider">
+          <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+            <path fill="#f7f4ee" d="M0,70 C180,30 360,90 540,60 C720,30 900,80 1080,50 C1260,20 1440,70 1440,50 L1440,100 L0,100 Z" opacity="0.4"/>
+            <path fill="rgba(91,169,200,0.05)" d="M0,60 C180,20 360,80 540,50 C720,20 900,70 1080,40 C1260,10 1440,60 1440,40 L1440,100 L0,100 Z"/>
+          </svg>
+        </div>
 
         <section className="section-band contact-band" id="contact">
           <div className="section-shell contact-section">
@@ -1117,7 +1216,7 @@ function App() {
               </div>
             </div>
 
-            <article className="map-card">
+            <article className="map-card reveal" style={{ animationDelay: '0s' }}>
               <div className="map-frame">
                 <iframe
                   title="Trident Net Holidays location map"
@@ -1138,7 +1237,7 @@ function App() {
               </div>
             </article>
 
-            <form className="enquiry-form" onSubmit={handleEnquirySubmit}>
+            <form className="enquiry-form reveal" style={{ animationDelay: '0s' }} onSubmit={handleEnquirySubmit}>
               <h3 className="form-title">Send Us an Enquiry</h3>
               <label>
                 Your Name
@@ -1203,6 +1302,13 @@ function App() {
           <p>© 2024 Trident Net Holidays. All rights reserved.</p>
         </div>
       </footer>
+      <button
+        className={`back-to-top ${showBackToTop ? 'visible' : ''}`}
+        onClick={scrollToTop}
+        aria-label="Back to top"
+      >
+        <i className="fa-solid fa-arrow-up"></i>
+      </button>
     </div>
   )
 }

@@ -11,6 +11,15 @@
   --accent: #d98a2b;
   --heading-font: 'Cormorant Garamond', serif;
   --body-font: 'Manrope', sans-serif;
+
+  --gradient-primary: linear-gradient(135deg, #0e2a47, #1a3f5f);
+  --gradient-accent: linear-gradient(135deg, #d98a2b, #f0a540);
+  --gradient-teal: linear-gradient(135deg, #5ba9c8, #3d8aa8);
+  --gradient-sunset: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  --gradient-gold: linear-gradient(135deg, #ffd700, #ff8c00);
+  --glow-teal: 0 0 30px rgba(91, 169, 200, 0.3);
+  --glow-accent: 0 0 30px rgba(217, 138, 43, 0.3);
+
   font-family: var(--body-font);
   line-height: 1.55;
   font-weight: 500;
